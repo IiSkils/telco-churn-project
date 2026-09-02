@@ -12,7 +12,7 @@ def evaluate_models(data_dir="data", model_dir="models", output_dir="outputs"):
     X_test = pd.read_csv(f"{data_dir}/X_test.csv")
     y_test = pd.read_csv(f"{data_dir}/y_test.csv").values.ravel()
 
-    # تحديد أفضل وأسوأ نموذج بناءً على نتائج الترتيب
+
     best_model_name = "CatBoost"
     worst_model_name = "LightGBM"
 
@@ -22,7 +22,7 @@ def evaluate_models(data_dir="data", model_dir="models", output_dir="outputs"):
 
     os.makedirs(output_dir, exist_ok=True)
 
-    # 1. تقييم ورسم مصفوفة الارتباك لكلا النموذجين
+
     for name, model, is_best in [(best_model_name, best_model, True), (worst_model_name, worst_model, False)]:
         print(f"\n📊 Evaluating {name}...")
         y_pred = model.predict(X_test)
@@ -30,7 +30,7 @@ def evaluate_models(data_dir="data", model_dir="models", output_dir="outputs"):
 
         cm = confusion_matrix(y_test, y_pred)
         plt.figure(figsize=(6, 4))
-        # استخدام اللون الأزرق للأفضل والأحمر للأسوأ للتمييز البصري
+
         sns.heatmap(cm, annot=True, fmt='d', cmap='Blues' if is_best else 'Reds')
         plt.title(f"Confusion Matrix - {name} ({'Best' if is_best else 'Worst'})")
         plt.xlabel("Predicted")
@@ -39,7 +39,7 @@ def evaluate_models(data_dir="data", model_dir="models", output_dir="outputs"):
         plt.savefig(f"{output_dir}/confusion_matrix_{name.lower()}.png")
         plt.close()
 
-    # 2. استخراج ورسم أهمية الميزات (Feature Importance) لأفضل نموذج
+
     print(f"\n🌟 Extracting Feature Importance for {best_model_name}...")
     importances = best_model.feature_importances_
     feature_names = X_test.columns

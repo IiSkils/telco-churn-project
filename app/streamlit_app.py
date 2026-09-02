@@ -4,10 +4,10 @@ import joblib
 import random
 import time
 
-# 1. إعدادات الصفحة
+
 st.set_page_config(page_title="Telco Churn Predictor", page_icon="🚀", layout="wide")
 
-# ================= القائمة الجانبية (Sidebar) =================
+
 with st.sidebar:
     st.title("🏆 The Dream Team")
     st.markdown("### 👨‍💻 Developed By:")
@@ -17,11 +17,11 @@ with st.sidebar:
     st.info("🤖 **Model Used:** CatBoost Classifier (Tuned via Optuna)")
     st.success("🎯 **Project Goal:** End-to-end ML Pipeline for Telco Customer Churn Prediction.")
 
-# العنوان الرئيسي
+
 st.title("🚀 Telco Customer Churn Predictor")
 st.markdown("---")
 
-# 2. تحميل الموديل والبيانات في الذاكرة لتسريع التطبيق
+
 @st.cache_resource
 def load_model():
     return joblib.load("models/best_model.pkl")
@@ -35,18 +35,18 @@ def load_data():
 model = load_model()
 X_test, y_test = load_data()
 
-# 3. إنشاء التبويبات
+
 tab1, tab2 = st.tabs(["🔮 Prediction Hub", "📊 Model Leaderboard"])
 
-# ================= التبويب الأول: التوقع (Prediction) =================
+
 with tab1:
     st.markdown("### 🎯 How would you like to select a customer?")
     
-    # تهيئة المتغير العشوائي في الذاكرة
+
     if 'random_idx' not in st.session_state:
         st.session_state.random_idx = 0
 
-    # خيارات متعددة لاختيار العميل
+
     selection_method = st.radio(
         "Selection Method",
         ["🔍 Search by ID", "📋 Browse List", "🎲 Random Customer"],
@@ -75,13 +75,13 @@ with tab1:
         with col2:
             st.info(f"Currently viewing random customer ID: **#{customer_index}**")
 
-    # جلب بيانات العميل المختار
+
     customer_data = X_test.iloc[[customer_index]]
     actual_churn = y_test.iloc[customer_index].values[0]
     
     st.subheader("👤 Customer Profile Overview")
     
-    # عرض الأرقام الأساسية
+
     tenure = customer_data['tenure'].values[0] if 'tenure' in customer_data.columns else 0
     monthly = customer_data['MonthlyCharges'].values[0] if 'MonthlyCharges' in customer_data.columns else 0
     total = customer_data['TotalCharges'].values[0] if 'TotalCharges' in customer_data.columns else 0
@@ -91,7 +91,7 @@ with tab1:
     m_col2.metric("💳 Monthly Charges", f"${monthly:.2f}")
     m_col3.metric("💰 Total Charges", f"${total:.2f}")
     
-    # تنظيف البيانات وجعلها مفهومة للبشر 
+
     display_df = customer_data.T
     display_df.columns = ["Value"]
     
@@ -113,7 +113,7 @@ with tab1:
     
     st.divider()
     
-    # زر التوقع والتأثيرات البصرية
+
     if st.button("🔮 Predict Churn Risk", type="primary", use_container_width=True):
         with st.spinner("🧠 AI is analyzing customer profile..."):
             time.sleep(1) 
@@ -122,7 +122,7 @@ with tab1:
         
         st.markdown("### 📊 AI Analysis Results:")
         
-        # شريط التقدم المرئي للنسبة
+
         st.progress(float(probability), text=f"Churn Probability: {probability:.2%}")
         
         if prediction == 1:
@@ -132,7 +132,7 @@ with tab1:
             
         st.info(f"📂 **Actual Status in Database:** {'Churned (Left the company)' if actual_churn == 1 else 'Stayed (Active)'}")
 
-# ================= التبويب الثاني: التقييم والمقارنات =================
+
 with tab2:
     st.header("Model Performance Leaderboard")
     

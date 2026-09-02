@@ -13,7 +13,7 @@ def train_baseline_models(data_dir="data", output_dir="models"):
     X_train = pd.read_csv(f"{data_dir}/X_train.csv")
     y_train = pd.read_csv(f"{data_dir}/y_train.csv").values.ravel()
 
-    # 1. تعريف النماذج الأربعة المخصصة لفريقك (Boosting)
+
     models = {
         "AdaBoost": AdaBoostClassifier(random_state=42),
         "XGBoost": XGBClassifier(random_state=42, eval_metric='logloss'),
@@ -26,10 +26,10 @@ def train_baseline_models(data_dir="data", output_dir="models"):
     
     os.makedirs(output_dir, exist_ok=True)
 
-    # 2. التحقق المتقاطع (نستخدم F1 و ROC-AUC كما هو مطلوب لبيانات Imbalanced)
+
     for name, model in models.items():
         print(f"Training and validating {name}...")
-        # cv=5 تعني تدريب واختبار النموذج 5 مرات لضمان الموثوقية
+
         cv_results = cross_validate(model, X_train, y_train, cv=5, 
                                     scoring=['accuracy', 'f1', 'roc_auc'])
         
@@ -44,16 +44,15 @@ def train_baseline_models(data_dir="data", output_dir="models"):
             "ROC_AUC": mean_auc
         })
         
-        # حفظ النماذج المبدئية
+
         model.fit(X_train, y_train)
         joblib.dump(model, f"{output_dir}/{name}_baseline.pkl")
 
-    # 3. طباعة جدول الترتيب المبدئي (Leaderboard)
+
     results_df = pd.DataFrame(results).sort_values(by="ROC_AUC", ascending=False)
     print("\n🏆 Baseline Models Leaderboard (Ranked by ROC-AUC):")
     print(results_df.to_string(index=False))
-    
-    # حفظ النتائج كجدول للرجوع إليها
+
     os.makedirs("outputs", exist_ok=True)
     results_df.to_csv("outputs/baseline_leaderboard.csv", index=False)
     print("\n📁 Baseline training complete. Models saved in 'models/' and leaderboard in 'outputs/'.")

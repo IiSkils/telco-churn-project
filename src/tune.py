@@ -9,7 +9,7 @@ from catboost import CatBoostClassifier
 from sklearn.model_selection import cross_val_score, StratifiedKFold
 
 def objective(trial, model_name, X, y):
-    # 1. تحديد مساحات البحث (Search Spaces) لكل خوارزمية Boosting
+
     if model_name == 'AdaBoost':
         n_estimators = trial.suggest_int('n_estimators', 50, 300)
         learning_rate = trial.suggest_float('learning_rate', 0.01, 1.0, log=True)
@@ -36,7 +36,7 @@ def objective(trial, model_name, X, y):
         model = CatBoostClassifier(iterations=iterations, learning_rate=learning_rate, 
                                    depth=depth, random_state=42, verbose=0)
 
-    # 2. التحقق المتقاطع الداخلي (Inner CV) لتقييم كفاءة المعاملات التي اختارها Optuna
+
     cv = StratifiedKFold(n_splits=3, shuffle=True, random_state=42)
     scores = cross_val_score(model, X, y, cv=cv, scoring='roc_auc')
     return scores.mean()
@@ -51,17 +51,17 @@ def tune_models(data_dir="data", output_dir="models", n_trials=10):
     
     for model_name in models:
         print(f"\n⚙️ Tuning {model_name} with Optuna...")
-        # إخفاء رسائل Optuna المتكررة لتنظيف الـ Terminal
+
         optuna.logging.set_verbosity(optuna.logging.WARNING) 
         
         study = optuna.create_study(direction='maximize')
-        # تمرير اسم الموديل وبيانات التدريب إلى دالة الهدف
+
         study.optimize(lambda trial: objective(trial, model_name, X_train, y_train), n_trials=n_trials)
         
         print(f"✅ Best ROC-AUC for {model_name}: {study.best_value:.4f}")
         print(f"🔧 Best Params: {study.best_params}")
         
-        # 3. بناء الموديل النهائي باستخدام أفضل المعاملات
+
         if model_name == 'AdaBoost':
             best_model = AdaBoostClassifier(**study.best_params, random_state=42)
         elif model_name == 'XGBoost':
@@ -73,7 +73,7 @@ def tune_models(data_dir="data", output_dir="models", n_trials=10):
             
         best_model.fit(X_train, y_train)
         
-        # حفظ الموديل المحسن باسم مختلف
+
         joblib.dump(best_model, f"{output_dir}/{model_name}_tuned.pkl")
         
     print("\n📁 Tuning complete. All tuned models saved in 'models/'.")
